@@ -29,15 +29,17 @@
 
 
 # tool/tool.py (또는 prompt/prompt.py)
-
+import mcp
 from mcp.server.fastmcp.prompts import base
 from typing import List
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.prompts import base
 
+import logging
+logger = logging.getLogger(__name__)
 # mcp = FastMCP(name="Prompt Example")
 
-@resource.prompt(title="News Summarizer & Comparator")
+@mcp.prompt(title="News Summarizer & Comparator")
 def summarize_and_compare_news(articles_json: str) -> str:
     """
     주어진 뉴스 기사 JSON 목록을 분석하여, 각 기사의 핵심 내용을 3줄로 요약하고, 

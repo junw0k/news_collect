@@ -17,7 +17,9 @@ from typing import Annotated
 from resource.article_extractor import fetch_naver_news_items
 from resource.article_extractor import fetch_article_text
 
-
+import mcp
+import logging
+logger = logging.getLogger(__name__)
 
 
 
@@ -42,9 +44,9 @@ class NewsCollectionResult(BaseModel):
 
 # mcp = FastMCP("NewsCollectorToolService")
 
-@resource.tool()
+@mcp.tool()
 def collect_news_articles(
-    # 💡 Pydantic 모델을 사용하여 입력 파라미터를 명확히 정의
+    # Pydantic 모델을 사용하여 입력 파라미터를 명확히 정의
     input: CollectNewsInput
 ) -> Annotated[CallToolResult, NewsCollectionResult]:
     """

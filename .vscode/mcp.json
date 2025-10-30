@@ -1,0 +1,10 @@
+{
+	"servers": {
+		"my-mcp-server-f408b3a9": {
+			"type": "stdio",
+			"command": "mcp-naver-news",
+			"args": []
+		}
+	},
+	"inputs": []
+}

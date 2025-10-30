@@ -1,10 +1,15 @@
 import os
+import mcp
 import requests
 import re
 from typing import Optional
 from bs4 import BeautifulSoup, Tag
-from modelcontextprotocol.server.fastmcp import FastMCP # MCP 서버 SDK
-from modelcontextprotocol.resource import resource # @resource 데코레이터 import
+#from modelcontextprotocol.server.fastmcp import FastMCP # MCP 서버 SDK
+#from modelcontextprotocol.resource import resource # @resource 데코레이터 import
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
 # 환경 변수 로드
@@ -76,7 +81,7 @@ def _crawl_article_by_url(url: str) -> str:
 # ----------------------------------------------------------------------
 # 3. MCP Resource 정의
 # ----------------------------------------------------------------------
-@resource("news://naver/{news_id}/{company_code}")
+@mcp.resource("news://naver/{news_id}/{company_code}")
 def get_news_article(news_id: str, company_code: str = '001') -> str:
     """
     네이버 기사 ID와 언론사 코드를 기반으로 기사 본문 텍스트(컨텍스트)를 가져오는 MCP Resource.
