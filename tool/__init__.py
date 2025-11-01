@@ -1,4 +1,2 @@
 """Tool 패키지 초기화."""
-
-
-from .tool1 import collect_news_with_service
+from .tool1 import register_data_tools

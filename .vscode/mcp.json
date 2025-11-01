@@ -3,7 +3,12 @@
 		"my-mcp-server-f408b3a9": {
 			"type": "stdio",
 			"command": "mcp-naver-news",
-			"args": []
+			"args": ["stdio",
+			"/home/kjw/getnews/naver-news/",
+			"run",
+			"server.py"
+		
+		]
 		}
 	},
 	"inputs": []

@@ -1,31 +1,24 @@
 # config.py
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Literal
-
-from pydantic import BaseModel, Field
 import os
+
+from dotenv import load_dotenv
+from pydantic import BaseModel, Field
+
+load_dotenv()
 
 
 class Settings(BaseModel):
-    """프로젝트 공통 설정 (네이버 API, 크롤링 옵션 등)."""
+    """네이버 뉴스 API 통신에 필요한 기본 설정."""
 
-    client_id: str = Field(default_factory=lambda:
-os.getenv("NAVER_CLIENT_ID", ""))
-    client_secret: str = Field(default_factory=lambda:
-os.getenv("NAVER_CLIENT_SECRET", ""))
+    client_id: str = Field(default_factory=lambda: os.getenv("NAVER_CLIENT_ID", ""))
+    client_secret: str = Field(default_factory=lambda: os.getenv("NAVER_CLIENT_SECRET", ""))
     search_url: str = "https://openapi.naver.com/v1/search/news.json"
-    article_base_url: str = "https://n.news.naver.com/mnews/article"
-    articles_per_topic: int = 3
-    request_timeout: float = 10.0
-    user_agent: str = "Mozilla/5.0 (McpResourceBot)"
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
-    log_dir: Path = Field(default_factory=lambda: Path.cwd() / "logs")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.log_dir.mkdir(parents=True, exist_ok=True)
+    default_display: int = 3
+    default_sort: str = "sim"
+    request_timeout: float = 15.0
+    user_agent: str = "Mozilla/5.0 (CollectorBot)"
 
 
 # 싱글톤 인스턴스
