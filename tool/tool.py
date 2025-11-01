@@ -14,8 +14,10 @@ from typing import List
 from mcp.server.fastmcp import FastMCP
 from mcp.types import CallToolResult, TextContent
 from typing import Annotated
-from resource.article_extractor import fetch_naver_news_items
-from resource.article_extractor import fetch_article_text
+from article_extractor import fetch_naver_news_items
+from article_extractor import fetch_article_text
+
+from 
 
 import mcp
 import logging

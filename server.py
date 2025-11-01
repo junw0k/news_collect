@@ -1,13 +1,10 @@
 # server.py (최종 통합 및 리팩토링된 MCP 서버 파일)
-
-import uvicorn
-import os
 import sys
 import logging
-from mcp.server.fastmcp import FastMCP # FastMCP는 FastAPI 인스턴스를 제공합니다.
-from dotenv import load_dotenv # 환경 변수 로드
-from mcp.server.models import InitializationOptions # (사용하지 않지만 원본에 있었으므로 남김)
-import asyncio # (사용하지 않지만 원본에 있었으므로 남김)
+from fastmcp import FastMCP  # FastMCP는 FastAPI 인스턴스를 제공합니다.
+from dotenv import load_dotenv  # 환경 변수 로드
+
+from config import settings
 
 
 # ----------------------------------------------------------------------
@@ -48,15 +45,9 @@ setattr(current_module, 'mcp', mcp)
 # ----------------------------------------------------------------------
 # 💡 이 import 문들이 실행되면서 각 파일 내의 @mcp.resource, @mcp.tool 등이 실행되어
 # 위의 중앙 'mcp' 인스턴스에 기능이 자동으로 등록됩니다.
-
-# Resource (기사 본문 크롤링)
-#import resource.article_extractor 
-
-# Tool (뉴스 검색 및 크롤링 통합 기능)
-#import tool.tool 
-
-# Prompt (LLM 지침 템플릿)
-#import prompt.prompt 
+import resource.article_extractor  # 기존 리소스 등록
+import tool.tool1  # DataService 기반 뉴스 수집 툴
+import prompt.prompt  # LLM 프롬프트 템플릿
 
 logger.info("✅ 모든 MCP 기능(Resource, Tool, Prompt) 등록 완료.")
 
@@ -65,9 +56,8 @@ logger.info("✅ 모든 MCP 기능(Resource, Tool, Prompt) 등록 완료.")
 # 4. 서버 구동
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
-    if not os.environ.get('NAVER_CLIENT_ID'):
+    if not settings.client_id or not settings.client_secret:
         logger.error("🚨 NAVER_CLIENT_ID/SECRET 환경 변수가 설정되지 않았습니다. 테스트가 실패할 수 있습니다.")
-
     logger.info(f"🚀 Starting MCP Server: ")
     # mcp.app은 FastMCP 인스턴스에서 노출하는 FastAPI 앱입니다.
-    mcp.run(transport='stdio')
+    mcp.run(transport="stdio")
