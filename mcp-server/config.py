@@ -21,5 +21,5 @@ class Settings(BaseModel):
     user_agent: str = "Mozilla/5.0 (CollectorBot)"
 
 
-# 싱글톤 인스턴스
+
 settings = Settings()

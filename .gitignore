@@ -1,5 +1,10 @@
 # Python-generated files
 __pycache__/
+
+
+# 파이썬 캐시
+__pycache__/
+*.pyc
 *.py[oc]
 build/
 dist/
@@ -11,3 +16,4 @@ wheels/
 
 #
 .env
+
