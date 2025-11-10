@@ -1,0 +1,25 @@
+
+
+services:
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile.server
+    container_name: mcp-server
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.client
+    container_name: gemini-client
+    depends_on:
+      - mcp-server
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
