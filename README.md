@@ -32,14 +32,18 @@ source .venv/bin/activate    # 또는 uv run 사용
 
 ## MCP 서버 실행
 ```bash
-uv run --env-file .env python mcp-server/server.py
+uv run --env-file .env python src/mcp_server/server.py
 ```
 
 서버는 `collect_news` MCP 도구를 노출합니다. 입력 `topic`(예: “AI 반도체”)을 받으면 네이버 뉴스 검색 → 기사 본문 크롤링 → `title`, `url`, `text`를 포함한 JSON을 반환합니다.
 
-또한 다음 프롬프트 템플릿을 제공합니다.
-- `News Summarizer & Comparator`: 기사 다건 요약 + 관점 비교
-- `Extract Key Entities`: 기업/인물/기술 키워드 추출
+다음과 같은 프롬프트 템플릿도 함께 제공합니다.
+- `news_query_prompt`
+- `summarize_articles_prompt`
+- `analyze_trends_prompt`
+- `classify_category_prompt`
+- `extract_keywords_prompt`
+- `async_news_prompt`
 
 ## Gemini CLI 실행
 서버가 기동 중일 때:
@@ -65,7 +69,7 @@ docker compose up --build
     {
       "name": "naver-news",
       "command": "uv",
-      "args": ["run", "--env-file", ".env", "python", "mcp-server/server.py"],
+      "args": ["run", "--env-file", ".env", "python", "src/mcp_server/server.py"],
       "env": {}
     }
   ]

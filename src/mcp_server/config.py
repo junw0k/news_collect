@@ -15,7 +15,7 @@ class Settings(BaseModel):
     client_id: str = Field(default_factory=lambda: os.getenv("NAVER_CLIENT_ID", ""))
     client_secret: str = Field(default_factory=lambda: os.getenv("NAVER_CLIENT_SECRET", ""))
     search_url: str = "https://openapi.naver.com/v1/search/news.json"
-    default_display: int = 3
+    default_display: int = 1
     default_sort: str = "sim"
     request_timeout: float = 15.0
     user_agent: str = "Mozilla/5.0 (CollectorBot)"
@@ -23,3 +23,5 @@ class Settings(BaseModel):
 
 
 settings = Settings()
+
+

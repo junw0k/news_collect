@@ -3,7 +3,7 @@
 services:
   mcp-server:
     build:
-      context: ./mcp-server
+      context: ./src/mcp_server
       dockerfile: Dockerfile.server
     container_name: mcp-server
     env_file:

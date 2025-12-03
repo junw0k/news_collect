@@ -9,7 +9,7 @@ from fastmcp import FastMCP
 
 from config import settings
 from prompt.prompt import register_prompt_templates
-from tool.tool1 import register_data_tools
+from tool.tool import register_data_tools
 
 def configure_logging() -> None:
     """MCP 권장 사항에 따라 stderr 로깅을 구성한다."""
@@ -23,8 +23,8 @@ def configure_logging() -> None:
 def create_server() -> FastMCP:
     """FastMCP 인스턴스를 생성하고 필요한 도구/프롬프트를 등록한다."""
     mcp = FastMCP(
-        name="naver-news-collectmcp",
-        instructions="네이버 뉴스 기사를 수집하고 분석하는 MCP 서버",
+        name="naver-api-mcp",
+        instructions="네이버 뉴스 API 기사를 수집,요약하는 MCP 서버",
     )
 
     register_data_tools(mcp, settings)
@@ -42,15 +42,9 @@ def main() -> None:
         logger.warning("NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 환경 변수가 설정되지 않았습니다.")
 
     mcp_server = create_server()
-    logger.info("🚀 MCP Server starting in streamable-http mode")
-    mcp_server.run(
-        transport="streamable-http",
-        host="0.0.0.0",
-        port=8000,
-        path="/",
-    )
+    logger.info("MCP Server starting in streamable-http mode")
+    mcp_server.run()
 
 
 if __name__ == "__main__":
     main()
-
