@@ -1,0 +1,31 @@
+# server
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install curl and other system dependencies if needed
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+# --frozen ensures we use the exact versions in uv.lock
+# --no-install-project means we don't install the current project as a package (since we just run scripts)
+RUN uv sync --frozen --no-install-project
+
+# Copy source code
+COPY src/mcp_server ./src/mcp_server
+
+# Set PYTHONPATH so imports work
+ENV PYTHONPATH=/app/src/mcp_server
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Expose port
+EXPOSE 8000
+
+# Run server
+CMD ["python", "src/mcp_server/server.py"]

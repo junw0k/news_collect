@@ -1,0 +1,25 @@
+# client
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN uv sync --frozen --no-install-project
+
+# Copy client code
+COPY client ./client
+
+# Set path to use venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Environment variables should be passed at runtime, but we can set defaults or expect them
+# ENV SERVER_URL="http://host.docker.internal:8000/mcp"
+
+# Run client
+CMD ["python", "client/client.py"]

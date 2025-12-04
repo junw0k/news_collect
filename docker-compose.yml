@@ -3,8 +3,9 @@
 services:
   mcp-server:
     build:
-      context: ./src/mcp_server
-      dockerfile: Dockerfile.server
+      context: .                
+      dockerfile: Dockerfile.server  
+    image: qwer319/ai-news-server:v2 
     container_name: mcp-server
     env_file:
       - .env
@@ -14,12 +15,15 @@ services:
 
   client:
     build:
-      context: ./client
+      context: .               
       dockerfile: Dockerfile.client
+    image: qwer319/ai-news-client:v2
     container_name: gemini-client
     depends_on:
       - mcp-server
     env_file:
       - .env
-    stdin_open: true
+    environment:
+      - SERVER_URL=http://mcp-server:8000/mcp
+    stdin_open: true 
     tty: true

@@ -10,18 +10,21 @@ FastMCP 서버가 네이버 뉴스 검색 API와 직접 통신해 기사 본문�
 - Naver Developers Open API 계정 (뉴스 검색)
 - Google AI Studio 계정 및 `GEMINI_API_KEY`
 
-## 환경 변수 (.env 예시)
-`.env` 파일을 리포지토리 루트에 생성하고 아래 값을 채워 주세요.
+## 시작하기 (Quick Start)
 
-```dotenv
-NAVER_CLIENT_ID=your_naver_client_id
-NAVER_CLIENT_SECRET=your_naver_client_secret
-GEMINI_API_KEY=your_google_gemini_api_key
+가장 먼저 환경 변수 파일을 설정해야 합니다.
 
-# 선택 항목
-MCP_SERVER_URL=http://127.0.0.1:8000/
-MCP_ACCESS_TOKEN=
-```
+1.  예시 파일을 복사하여 `.env` 파일을 생성합니다.
+    ```bash
+    cp .env.example .env
+    ```
+2.  생성된 `.env` 파일을 열어 API 키를 입력합니다.
+    ```ini
+    NAVER_CLIENT_ID="내_네이버_아이디"
+    NAVER_CLIENT_SECRET="내_네이버_비밀번호"
+    GEMINI_API_KEY="내_구글_API키"
+    ```
+    *Docker 실행 시 이 파일이 자동으로 컨테이너에 적용됩니다.*
 
 ## 로컬 설치
 ```bash

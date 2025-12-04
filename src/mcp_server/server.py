@@ -33,18 +33,23 @@ def create_server() -> FastMCP:
     return mcp
 
 
-def main() -> None:
-    """환경 변수를 로드하고 MCP 서버를 STDIO 모드로 기동한다."""
-    configure_logging()
 
+def main() -> None:
+    configure_logging()
     logger = logging.getLogger("mcp.server")
+
     if not settings.client_id or not settings.client_secret:
         logger.warning("NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 환경 변수가 설정되지 않았습니다.")
 
     mcp_server = create_server()
-    logger.info("MCP Server starting in streamable-http mode")
-    mcp_server.run()
-
+    logger.info("MCP Server starting in HTTP (Streamable) mode on port 8000...")
+    
+    # [수정됨] 문서에 기반한 설정
+    # transport="http": 최신 FastMCP 권장 방식
+    # host="0.0.0.0": 컨테이너/K8s 환경에서 외부 접속 허용을 위해 필수
+    mcp_server.run(transport="http", host="0.0.0.0", port=8000)
 
 if __name__ == "__main__":
     main()
+
+
