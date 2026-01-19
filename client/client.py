@@ -11,7 +11,7 @@ from fastmcp import Client  # High-Level Client
 # 환경 변수 로드
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-SERVER_URL = os.getenv("SERVER_URL", "http://localhost:8000/mcp")
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:8000/mcp")
 
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY가 설정되지 않았습니다.")
@@ -29,9 +29,9 @@ def prepare_summary_prompt_args(raw_args: Dict[str, Any], fallback_topic: str = 
 async def main():
     gemini_client = genai.Client(api_key=GEMINI_API_KEY)
     
-    print(f"Gemini 뉴스 봇 시작 (Target: {SERVER_URL})")
+    print(f"Gemini 뉴스 봇 시작 (Target: {MCP_SERVER_URL})")
     
-    async with Client(SERVER_URL) as mcp_client:
+    async with Client(MCP_SERVER_URL) as mcp_client:
         
         # [수정됨] FastMCP Client는 리스트를 바로 반환합니다.
         mcp_tools = await mcp_client.list_tools()

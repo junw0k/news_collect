@@ -24,6 +24,6 @@ services:
     env_file:
       - .env
     environment:
-      - SERVER_URL=http://mcp-server:8000/mcp
+      - MCP_SERVER_URL=http://mcp-server:8000/mcp
     stdin_open: true 
     tty: true
