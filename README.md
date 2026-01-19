@@ -1,110 +1,155 @@
 # Naver News MCP
 
-FastMCP 서버가 네이버 뉴스 검색 API와 직접 통신해 기사 본문을 수집하고, Gemini 등 MCP 호환 LLM이 해당 도구와 프롬프트를 활용해 요약·분석하도록 돕는 프로젝트입니다.
+FastMCP 서버가 네이버 뉴스 검색 API와 통신해 기사 본문을 수집하고, MCP 호환 LLM(예: Gemini)이 **도구 호출(Tool Calling)** 방식으로 `collect_news`를 실행해 요약·분석까지 수행하도록 돕는 프로젝트입니다.
 
+## 핵심 기능
 
-## 필요 조건
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/)
-- Docker / Kubernetes (선택)
-- Naver Developers Open API 계정 (뉴스 검색)
-- Google AI Studio 계정 및 `GEMINI_API_KEY`
+* **MCP Tool**: `collect_news(topic)`
 
-## 시작하기 (Quick Start)
+  * 네이버 뉴스 검색 → 본문 크롤링 → `{title, url, text}` JSON 반환
+* **Prompt Templates**
 
-가장 먼저 환경 변수 파일을 설정해야 합니다.
+  * `news_query_prompt`, `summarize_articles_prompt`, `analyze_trends_prompt` 등 제공
+* **실행 환경**
 
-1.  예시 파일을 복사하여 `.env` 파일을 생성합니다.
-    ```bash
-    cp .env.example .env
-    ```
-2.  생성된 `.env` 파일을 열어 API 키를 입력합니다.
-    ```ini
-    NAVER_CLIENT_ID="여기에 네이버 클라이언트 ID를 입력하세요"
-    NAVER_CLIENT_SECRET="여기에 네이버 클라이언트 시크릿을 입력하세요"
+  * Local(uv), Docker Compose, Kubernetes 배포 지원(선택)
 
-    # Gemini API 키 (Google AI Studio에서 발급)
-    GEMINI_API_KEY="여기에 Gemini API 키를 입력하세요"
+## 아키텍처
 
-    # MCP 서버 URL (클라이언트가 접속할 주소)
-    # Docker Compose 환경에서는 아래 주소를 그대로
-    MCP_SERVER_URL="http://mcp-server:8000/"
-    ```
-    *Docker 실행 시 이 파일이 자동으로 컨테이너에 적용됩니다.*
+* `mcp-server`: FastMCP 기반 서버 (Naver API + 본문 크롤링)
+* `mcp-client`: Gemini SDK 기반 클라이언트 (tools 동적 로딩 + function call 루프)
 
-## 로컬 설치
-```bash
-uv sync                      # 서버/공통 의존성 설치
-uv pip install google-genai  # Gemini 클라이언트 전용 추가 패키지
-source .venv/bin/activate    # 또는 uv run 사용
+### 동작 흐름(요약)
+
+1. Client가 MCP 서버에 `list_tools()` 요청
+2. Gemini tools로 변환하여 모델에 등록
+3. 사용자가 topic 입력
+4. Gemini가 `collect_news` function call 생성
+5. Client가 MCP Tool 실행 후 결과(JSON)를 Gemini에게 전달
+6. Gemini가 요약/분석 결과를 응답
+
+(선택) Mermaid 다이어그램 추가:
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant C as Gemini Client
+  participant S as MCP Server
+  participant N as Naver API
+
+  U->>C: topic 입력
+  C->>S: list_tools()
+  S-->>C: tools spec
+  C->>C: tools -> Gemini tools 변환
+  C->>S: call_tool(collect_news, topic)
+  S->>N: 뉴스 검색 API 호출
+  S->>S: 본문 크롤링/정제
+  S-->>C: articles JSON
+  C->>C: Gemini에 결과 전달
+  C-->>U: 요약/분석 응답
 ```
 
-## MCP 서버 실행
+---
+
+## 요구사항
+
+* Python 3.12+
+* [uv](https://docs.astral.sh/uv/)
+* (선택) Docker / Kubernetes
+* Naver Developers Open API 계정
+* Google AI Studio 계정 및 `GEMINI_API_KEY`
+
+## 환경 변수(.env)
+
+`.env.example`을 복사해 `.env`를 만들고 API 키를 입력합니다.
+
 ```bash
+cp .env.example .env
+```
+
+`.env` 예시:
+
+```ini
+NAVER_CLIENT_ID="..."
+NAVER_CLIENT_SECRET="..."
+GEMINI_API_KEY="..."
+MCP_SERVER_URL="http://mcp-server:8000/"
+```
+
+
+---
+
+## 빠른 시작 (Local)
+
+```bash
+uv sync
+uv pip install google-genai
 uv run --env-file .env python src/mcp_server/server.py
 ```
 
-서버는 `collect_news` MCP 도구를 노출합니다. 입력 `topic`(예: “AI 반도체”)을 받으면 네이버 뉴스 검색 → 기사 본문 크롤링 → `title`, `url`, `text`를 포함한 JSON을 반환합니다.
+새 터미널에서 클라이언트 실행:
 
-다음과 같은 프롬프트 템플릿도 함께 제공합니다.
-- `news_query_prompt`
-- `summarize_articles_prompt`
-- `analyze_trends_prompt`
-- `classify_category_prompt`
-- `extract_keywords_prompt`
-- `async_news_prompt`
+```bash
+uv run --env-file .env python client/client.py
+```
 
+---
 
+## MCP Tool 명세
 
-## 문제 해결
-- `NAVER_CLIENT_ID/SECRET` 미설정 시 서버 시작 단계에서 예외가 발생합니다.
-- 네이버 API 에러나 403/429가 반복되면 호출 제한과 `default_display` 값을 점검하세요.
-- Gemini 응답이 비어 있으면 Google AI Studio 쿼터, 모델 지원 지역, 프롬프트 크기를 확인하세요.
+### `collect_news(topic: str) -> List[Article]`
 
-## Kubernetes 배포 (Deployment)
+* 입력: `topic` (예: `"AI 반도체"`)
+* 출력: 아래 형태의 JSON 리스트
 
-Docker Compose 대신 Kubernetes(k8s) 환경에서 배포하려면 다음 절차를 따르세요.
+예시:
 
-### 1. 사전 준비
-- `aI-news.yaml` 파일 다운로드
-- `.env` 파일 생성 (API 키 설정)
+```json
+[
+  {
+    "title": "기사 제목",
+    "url": "https://n.news.naver.com/...",
+    "text": "정제된 본문 텍스트 ..."
+  }
+]
+```
 
-### 2. Secret 생성
-`.env` 파일의 내용을 바탕으로 Kubernetes Secret을 생성합니다.
+---
+
+## Docker Compose 실행 (선택)
+
+```bash
+docker compose up --build
+```
+
+---
+
+## Kubernetes 배포 (선택)
+
+### 1) Secret 생성
+
 ```bash
 kubectl create secret generic mcp-secrets --from-env-file=.env
 ```
-생성된 Secret 확인:
+
+### 2) 리소스 배포
+
 ```bash
-kubectl get secrets
+kubectl apply -f ai-news.yaml
 ```
 
+### 3) 클라이언트 실행
 
-env 파일은 다음과같이 구성
-# 네이버 API 키 (네이버 개발자 센터에서 발급)
-NAVER_CLIENT_ID="여기에 네이버 클라이언트 ID를 입력하세요"
-NAVER_CLIENT_SECRET="여기에 네이버 클라이언트 시크릿을 입력하세요"
-
-# Gemini API 키 (Google AI Studio에서 발급)
-GEMINI_API_KEY="여기에 Gemini API 키를 입력하세요"
-
-# MCP 서버 URL (클라이언트가 접속할 주소)
-# Docker Compose 환경에서는 아래 주소를 그대로
-MCP_SERVER_URL="http://mcp-server:8000/"
-
-
-
-
-
-### 3. 리소스 배포
-Pod, Service, Deployment 등을 생성합니다.
-```bash
-kubectl apply -f aI-news.yaml
-```
-
-### 4. 클라이언트 접속
-생성된 `mcp-client` Pod에 접속하여 프로그램을 실행합니다.
 ```bash
 kubectl exec -it mcp-client -- python client/client.py
 ```
+
+---
+
+## 트러블슈팅
+
+* 서버 시작 시 `NAVER_CLIENT_ID/SECRET` 미설정 → `.env` 확인
+* `403/429` 반복 → 네이버 호출 제한 확인, 요청 빈도/`display` 값 조정, User-Agent/Referer 점검
+* Gemini 응답 비어 있음 → 쿼터/지역/프롬프트 길이 확인
+* 본문이 비어 있음 → 네이버 기사 레이아웃 변경 가능. selector 후보 업데이트 필요
 
